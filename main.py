@@ -6,7 +6,7 @@ import numpy as np
 import cv2
 import json
 
-app = FastAPI(title="Motor OMR Calibrado Hoja Original")
+app = FastAPI(title="Motor OMR Laraos Calibrado")
 
 app.add_middleware(
     CORSMiddleware,
@@ -29,7 +29,7 @@ def ordenar_puntos(pts):
     return rect
 
 def alinear_hoja(img):
-    """Detecta los 4 cuadros negros de las esquinas y proyecta la hoja a 1000x1400 px"""
+    """Detecta los 4 cuadros negros y normaliza la imagen a 1000x1414 px (proporción A4)"""
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     blurred = cv2.GaussianBlur(gray, (5, 5), 0)
     thresh = cv2.threshold(blurred, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
@@ -40,29 +40,36 @@ def alinear_hoja(img):
     for c in cnts:
         peri = cv2.arcLength(c, True)
         approx = cv2.approxPolyDP(c, 0.04 * peri, True)
-        # Filtra cuadriláteros que correspondan a los cuadros negros de las esquinas
-        if len(approx) == 4 and cv2.contourArea(c) > 250:
-            M = cv2.moments(c)
-            if M["m00"] != 0:
-                cX = int(M["m10"] / M["m00"])
-                cY = int(M["m01"] / M["m00"])
-                centros.append([cX, cY])
+        area = cv2.contourArea(c)
+        # Filtra marcadores de esquina según proporción y área
+        if len(approx) == 4 and area > 400:
+            x, y, w, h = cv2.boundingRect(approx)
+            aspect_ratio = float(w) / h
+            if 0.7 <= aspect_ratio <= 1.3:
+                M = cv2.moments(c)
+                if M["m00"] != 0:
+                    cX = int(M["m10"] / M["m00"])
+                    cY = int(M["m01"] / M["m00"])
+                    centros.append([cX, cY])
 
     if len(centros) < 4:
-        raise ValueError("No se detectaron los 4 cuadros de las esquinas. Asegúrate de enfocar la hoja completa con buena luz.")
+        raise ValueError("No se detectaron las 4 esquinas negras. Asegúrate de encuadrar la hoja completa.")
 
-    centros = sorted(centros, key=lambda p: (p[0]**2 + p[1]**2))
-    pts = ordenar_puntos(np.array(centros[:4], dtype="float32"))
+    # Tomar los 4 puntos más extremos de las esquinas
+    pts_arr = np.array(centros)
+    rect = ordenar_puntos(pts_arr)
 
-    ancho_dst, alto_dst = 1000, 1400
+    ancho_dst, alto_dst = 1000, 1414
+    # Coordenadas destino de los centros de los 4 cuadros de 10mm con margen de 15mm
+    # En A4 (210x297mm): centro en (20mm, 20mm), que proyectado a 1000x1414 es aprox (95, 95)
     dst = np.array([
-        [0, 0],
-        [ancho_dst - 1, 0],
-        [ancho_dst - 1, alto_dst - 1],
-        [0, alto_dst - 1]
+        [95, 95],
+        [905, 95],
+        [905, 1319],
+        [95, 1319]
     ], dtype="float32")
 
-    matriz = cv2.getPerspectiveTransform(pts, dst)
+    matriz = cv2.getPerspectiveTransform(rect, dst)
     return cv2.warpPerspective(gray, matriz, (ancho_dst, alto_dst))
 
 @app.post("/api/calificar")
@@ -79,35 +86,31 @@ async def calificar(
         nparr = np.frombuffer(contents, np.uint8)
         img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
 
-        # 1. Enderezar la hoja con perspectiva
         enderezada = alinear_hoja(img)
         
-        # 2. Umbralización adaptativa para evitar problemas de sombras
+        # Binarización adaptativa de alto contraste
         thresh = cv2.adaptiveThreshold(
             enderezada, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, 
-            cv2.THRESH_BINARY_INV, 25, 9
+            cv2.THRESH_BINARY_INV, 31, 10
         )
 
-        # Coordenadas exactas para la hoja de la primera versión (startY = 45 mm)
-        start_x = 166
-        start_y = 212
-        row_h = 42.4
-        col_w = 47.1
-        radio = 12
+        # Calibración milimétrica para la hoja física "SANTO DOMINGO - LARAOS":
+        # Pregunta 1 inicia en Y = 282 px. Distancia vertical = 42.8 px. Distancia horizontal = 47.6 px.
+        start_x = 172
+        start_y = 282
+        row_h = 42.8
+        col_w = 47.6
+        radio = 14
 
         buenas, malas, blancas = 0, 0, 0
         respuestas_detectadas = []
 
         for i, resp_correcta in enumerate(lista_clave):
-            columna = 0 if i < 25 else 1
-            fila = i if i < 25 else i - 25
-
-            y = int(start_y + (fila * row_h))
-            x_base = start_x if columna == 0 else start_x + 355
-
+            y = int(start_y + (i * row_h))
             marcas = []
+
             for j, opc in enumerate(lista_opciones):
-                x = int(x_base + (j * col_w))
+                x = int(start_x + (j * col_w))
                 
                 mascara = np.zeros(thresh.shape, dtype="uint8")
                 cv2.circle(mascara, (x, y), radio, 255, -1)
@@ -119,11 +122,11 @@ async def calificar(
             max_pix, seleccion = marcas[0]
             segundo_pix = marcas[1][0] if len(marcas) > 1 else 0
 
-            # Umbral de detección calibrado para marcas normales
-            if max_pix < 50:
+            # Umbral calibrado sobre marcas reales
+            if max_pix < 65:
                 blancas += 1
                 respuestas_detectadas.append("BLANCO")
-            elif (max_pix - segundo_pix) < 25:
+            elif (max_pix - segundo_pix) < 35:
                 malas += 1
                 respuestas_detectadas.append("DOBLE")
             elif seleccion == resp_correcta:
