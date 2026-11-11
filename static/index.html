@@ -7,62 +7,59 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     :root {
-      --primary: #4f46e5;
-      --primary-dark: #3730a3;
-      --secondary: #06b6d4;
-      --accent-green: #10b981;
-      --accent-purple: #8b5cf6;
-      --bg: #f1f5f9;
+      --primary: #6366f1;
+      --bg: #f8fafc;
       --text-main: #0f172a;
-      --text-muted: #64748b;
     }
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       margin: 0;
-      padding: 0 0 30px 0;
-      background: var(--bg);
+      padding: 0 0 35px 0;
+      background: linear-gradient(180deg, #f1f5f9 0%, #e2e8f0 100%);
       color: var(--text-main);
+      min-height: 100vh;
     }
     
-    /* Encabezado vistoso y colorido */
+    /* Encabezado ultra colorido con degradado moderno */
     .top-header {
-      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #06b6d4 100%);
+      background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 40%, #3b82f6 75%, #06b6d4 100%);
       color: white;
-      padding: 30px 20px 24px;
+      padding: 32px 20px 26px;
       text-align: center;
-      border-radius: 0 0 24px 24px;
-      box-shadow: 0 8px 20px rgba(79, 70, 229, 0.25);
+      border-radius: 0 0 28px 28px;
+      box-shadow: 0 10px 25px rgba(139, 92, 246, 0.3);
       margin-bottom: 22px;
-      position: relative;
     }
 
     .top-header h1 {
       margin: 0;
-      font-size: 1.55em;
+      font-size: 1.6em;
       font-weight: 800;
       letter-spacing: -0.5px;
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+      text-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
     }
 
     .top-header p {
-      margin: 8px 0 0;
-      font-size: 0.9em;
-      color: #e0e7ff;
-      font-weight: 500;
-      letter-spacing: 0.2px;
+      margin: 6px 0 0;
+      font-size: 0.95em;
+      color: #fdf2f8;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
     }
 
     .badge-live {
       display: inline-block;
-      background: rgba(255, 255, 255, 0.2);
-      backdrop-filter: blur(8px);
-      padding: 3px 12px;
-      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(10px);
+      padding: 4px 14px;
+      border-radius: 14px;
       font-size: 0.75em;
-      margin-bottom: 8px;
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      font-weight: 600;
+      margin-bottom: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      font-weight: 700;
+      text-shadow: none;
     }
 
     .container {
@@ -73,10 +70,10 @@
 
     .card {
       background: white;
-      border-radius: 16px;
-      padding: 20px;
-      margin-bottom: 18px;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+      border-radius: 18px;
+      padding: 22px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
       border: 1px solid #e2e8f0;
     }
 
@@ -84,31 +81,31 @@
       display: flex;
       align-items: center;
       gap: 10px;
-      margin: 0 0 14px 0;
-      font-size: 1.1em;
-      font-weight: 700;
+      margin: 0 0 16px 0;
+      font-size: 1.15em;
+      font-weight: 800;
       color: var(--text-main);
       border-bottom: 2px solid #f1f5f9;
-      padding-bottom: 10px;
+      padding-bottom: 12px;
     }
 
     .step-number {
-      width: 26px;
-      height: 26px;
+      width: 28px;
+      height: 28px;
       border-radius: 50%;
-      background: var(--primary);
       color: white;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.8em;
-      font-weight: 700;
+      font-size: 0.85em;
+      font-weight: 800;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
     }
 
     label {
       display: block;
-      margin: 12px 0 4px;
-      font-weight: 600;
+      margin: 12px 0 5px;
+      font-weight: 700;
       font-size: 0.85em;
       color: #475569;
     }
@@ -116,18 +113,18 @@
     input, select {
       width: 100%;
       box-sizing: border-box;
-      padding: 11px 13px;
-      border-radius: 10px;
+      padding: 12px 14px;
+      border-radius: 12px;
       border: 1.5px solid #cbd5e1;
       font-size: 0.95em;
-      transition: border-color 0.2s, box-shadow 0.2s;
+      transition: all 0.2s;
       background: #f8fafc;
     }
 
     input:focus, select:focus {
       outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+      border-color: #8b5cf6;
+      box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
       background: #ffffff;
     }
 
@@ -140,14 +137,14 @@
     button {
       width: 100%;
       box-sizing: border-box;
-      padding: 12px;
-      border-radius: 10px;
+      padding: 14px;
+      border-radius: 12px;
       border: none;
-      font-weight: 700;
-      font-size: 0.95em;
+      font-weight: 800;
+      font-size: 1em;
       cursor: pointer;
-      margin-top: 16px;
-      transition: transform 0.1s ease, filter 0.2s;
+      margin-top: 18px;
+      transition: transform 0.1s ease, filter 0.2s, box-shadow 0.2s;
     }
 
     button:active {
@@ -155,80 +152,87 @@
     }
 
     .btn-pdf {
-      background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+      background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
       color: white;
-      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+      box-shadow: 0 6px 16px rgba(168, 85, 247, 0.35);
     }
 
     .btn-camara {
       background: linear-gradient(135deg, #059669 0%, #10b981 100%);
       color: white;
-      font-size: 1.05em;
-      padding: 15px;
-      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+      font-size: 1.08em;
+      padding: 16px;
+      box-shadow: 0 6px 18px rgba(16, 185, 129, 0.35);
     }
 
+    /* FILA MULTICOLOR PARA CADA PREGUNTA */
     .clave-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 8px;
-      border-bottom: 1px solid #f8fafc;
-      padding: 6px 0;
+      margin-bottom: 10px;
+      padding: 8px 12px;
+      border-radius: 12px;
+      transition: transform 0.15s ease;
+    }
+
+    .clave-row:hover {
+      transform: translateX(2px);
     }
 
     .clave-label {
-      font-size: 0.9em;
-      font-weight: 700;
-      color: #334155;
+      font-size: 0.95em;
+      font-weight: 800;
+      letter-spacing: -0.2px;
     }
 
+    .opciones-group {
+      display: flex;
+      gap: 6px;
+    }
+
+    /* BOTONES DE ALTERNATIVAS COLOREADOS */
     .opcion-btn {
-      width: auto;
-      min-width: 38px;
-      padding: 7px 10px;
-      margin-left: 5px;
-      border-radius: 8px;
-      border: 1.5px solid #e2e8f0;
-      background: #ffffff;
-      color: #334155;
-      font-weight: 700;
-      font-size: 0.9em;
+      width: 38px;
+      height: 38px;
+      padding: 0;
+      margin: 0;
+      border-radius: 10px;
+      border: 2px solid transparent;
+      background: white;
+      font-weight: 800;
+      font-size: 0.95em;
       cursor: pointer;
-      transition: all 0.15s ease;
-    }
-
-    .opcion-btn.selected {
-      background: var(--primary);
-      color: white;
-      border-color: var(--primary);
-      box-shadow: 0 2px 6px rgba(79, 70, 229, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .res-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-top: 14px;
+      gap: 12px;
+      margin-top: 16px;
     }
 
     .res-item {
-      padding: 12px;
-      border-radius: 12px;
+      padding: 14px;
+      border-radius: 14px;
       text-align: center;
-      border: 1px solid transparent;
+      border: 1.5px solid transparent;
     }
 
-    .res-buenas { background: #ecfdf5; border-color: #a7f3d0; color: #047857; }
-    .res-malas { background: #fef2f2; border-color: #fecaca; color: #b91c1c; }
-    .res-blancas { background: #f8fafc; border-color: #e2e8f0; color: #475569; }
-    .res-nota { background: #eff6ff; border-color: #bfdbfe; color: #1d4ed8; }
+    .res-buenas { background: #ecfdf5; border-color: #6ee7b7; color: #047857; }
+    .res-malas { background: #fef2f2; border-color: #fca5a5; color: #b91c1c; }
+    .res-blancas { background: #f8fafc; border-color: #cbd5e1; color: #475569; }
+    .res-nota { background: #eff6ff; border-color: #93c5fd; color: #1d4ed8; }
 
     .res-num {
-      font-size: 1.5em;
+      font-size: 1.6em;
       font-weight: 800;
       display: block;
-      margin-top: 3px;
+      margin-top: 4px;
     }
   </style>
 </head>
@@ -236,16 +240,17 @@
 
   <!-- ENCABEZADO VIBRANTE -->
   <header class="top-header">
-    <div class="badge-live">Plataforma Pedagógica Activa</div>
+    <div class="badge-live">Plataforma Activa</div>
     <h1>Sistema de Calificación OMR</h1>
-    <p>I.E. Santo Domingo de Laraos — Gestión Pedagógica</p>
+    <p>Gestión Pedagógica</p>
   </header>
 
   <div class="container">
     <!-- Paso 1: Configuración de Hoja -->
     <div class="card">
       <div class="card-title">
-        <span class="step-number">1</span> Configurar Hoja de Respuestas
+        <span class="step-number" style="background: linear-gradient(135deg, #ec4899, #f43f5e);">1</span>
+        Configurar Hoja de Respuestas
       </div>
       
       <label>Insignia / Logo (Opcional - JPG o PNG):</label>
@@ -295,18 +300,20 @@
       <button type="button" class="btn-pdf" onclick="generarPDF()">Descargar Hoja en PDF</button>
     </div>
 
-    <!-- Paso 2: Clave del Docente -->
+    <!-- Paso 2: Clave Docente Multicolor -->
     <div class="card">
       <div class="card-title">
-        <span class="step-number" style="background: var(--accent-purple);">2</span> Clave del Docente
+        <span class="step-number" style="background: linear-gradient(135deg, #8b5cf6, #6366f1);">2</span>
+        Clave del Docente
       </div>
       <div id="contenedorClave"></div>
     </div>
 
-    <!-- Paso 3: Escanear y Calificar -->
+    <!-- Paso 3: Escaneo y Envío a Sheets -->
     <div class="card">
       <div class="card-title">
-        <span class="step-number" style="background: var(--accent-green);">3</span> Calificar Examen
+        <span class="step-number" style="background: linear-gradient(135deg, #10b981, #059669);">3</span>
+        Calificar Examen
       </div>
       <label>Nombre o Código del Estudiante:</label>
       <input type="text" id="nombreEstudiante" placeholder="Ej. José Ordoñez">
@@ -314,26 +321,26 @@
       <input type="file" id="camaraInput" accept="image/*" capture="environment" style="display:none;" onchange="procesarExamen()">
       <button type="button" class="btn-camara" onclick="iniciarCaptura()">📷 Abrir Cámara y Calificar</button>
 
-      <div id="pantallaResultado" style="display:none; margin-top: 16px;">
+      <div id="pantallaResultado" style="display:none; margin-top: 18px;">
         <div class="res-grid">
           <div class="res-item res-buenas">
-            <span style="font-size:0.8em; font-weight:700;">CORRECTAS</span>
+            <span style="font-size:0.8em; font-weight:800;">CORRECTAS</span>
             <span id="resBuenas" class="res-num">0</span>
           </div>
           <div class="res-item res-malas">
-            <span style="font-size:0.8em; font-weight:700;">INCORRECTAS</span>
+            <span style="font-size:0.8em; font-weight:800;">INCORRECTAS</span>
             <span id="resMalas" class="res-num">0</span>
           </div>
           <div class="res-item res-blancas">
-            <span style="font-size:0.8em; font-weight:700;">EN BLANCO</span>
+            <span style="font-size:0.8em; font-weight:800;">EN BLANCO</span>
             <span id="resBlancas" class="res-num">0</span>
           </div>
           <div class="res-item res-nota">
-            <span style="font-size:0.8em; font-weight:700;">NOTA / 20</span>
+            <span style="font-size:0.8em; font-weight:800;">NOTA / 20</span>
             <span id="resNota" class="res-num">0</span>
           </div>
         </div>
-        <p id="msgSheets" style="font-size:0.9em; text-align:center; color:#475569; margin-top:12px; font-weight:600;"></p>
+        <p id="msgSheets" style="font-size:0.95em; text-align:center; color:#334155; margin-top:14px; font-weight:700;"></p>
       </div>
     </div>
   </div>
@@ -341,6 +348,20 @@
   <script>
     const URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbzjyB6qhdCZGSSdc1l--b7JDckZ7rq8rWCLHe09RaYS0U7ltSQaB-5t2s_UY9Jdwizx/exec";
     let claveDocente = {};
+
+    // Paleta de 10 colores dinámicos para las filas y alternativas
+    const PALETA_COLORES = [
+      { fondo: "#ede9fe", texto: "#6d28d9", activo: "#7c3aed", borde: "#c4b5fd" }, // Morado
+      { fondo: "#e0f2fe", texto: "#0369a1", activo: "#0284c7", borde: "#7dd3fc" }, // Azul cielo
+      { fondo: "#ecfdf5", texto: "#047857", activo: "#059669", borde: "#6ee7b7" }, // Esmeralda
+      { fondo: "#ffedd5", texto: "#c2410c", activo: "#ea580c", borde: "#fdba74" }, // Naranja
+      { fondo: "#fce7f3", texto: "#be185d", activo: "#db2777", borde: "#f9a8d4" }, // Rosa
+      { fondo: "#fef3c7", texto: "#b45309", activo: "#d97706", borde: "#fcd34d" }, // Ámbar
+      { fondo: "#e0e7ff", texto: "#4338ca", activo: "#4f46e5", borde: "#a5b4fc" }, // Índigo
+      { fondo: "#cffafe", texto: "#0e7490", activo: "#0891b2", borde: "#67e8f9" }, // Cian
+      { fondo: "#f3e8ff", texto: "#7e22ce", activo: "#9333ea", borde: "#d8b4fe" }, // Púrpura
+      { fondo: "#ecfccb", texto: "#4d7c0f", activo: "#65a30d", borde: "#bef264" }  // Lima
+    ];
 
     function renderizarClaveDocente() {
       const num = parseInt(document.getElementById('numPreguntas').value) || 20;
@@ -351,23 +372,54 @@
 
       for (let i = 1; i <= num; i++) {
         claveDocente[i] = ops[0];
+        const temaColor = PALETA_COLORES[(i - 1) % PALETA_COLORES.length];
+
         let row = document.createElement('div');
         row.className = 'clave-row';
-        row.innerHTML = `<span class="clave-label">P${i < 10 ? '0'+i : i}</span><div></div>`;
-        let divOps = row.querySelector('div');
+        row.style.background = temaColor.fondo;
+        row.style.border = `1.5px solid ${temaColor.borde}`;
+
+        row.innerHTML = `
+          <span class="clave-label" style="color: ${temaColor.texto};">
+            PREGUNTA ${i < 10 ? '0' + i : i}
+          </span>
+          <div class="opciones-group"></div>
+        `;
+        
+        let divOps = row.querySelector('.opciones-group');
 
         ops.forEach(op => {
           let b = document.createElement('button');
           b.type = 'button';
-          b.className = 'opcion-btn' + (op === ops[0] ? ' selected' : '');
+          b.className = 'opcion-btn';
           b.innerText = op;
+
+          function aplicarEstilo(btn, seleccionado) {
+            if (seleccionado) {
+              btn.style.background = temaColor.activo;
+              btn.style.color = '#ffffff';
+              btn.style.borderColor = temaColor.activo;
+              btn.style.boxShadow = `0 3px 8px ${temaColor.borde}`;
+            } else {
+              btn.style.background = '#ffffff';
+              btn.style.color = temaColor.texto;
+              btn.style.borderColor = temaColor.borde;
+              btn.style.boxShadow = 'none';
+            }
+          }
+
+          // Inicializar selección (la primera alternativa por defecto)
+          aplicarEstilo(b, op === ops[0]);
+
           b.onclick = () => {
-            divOps.querySelectorAll('.opcion-btn').forEach(x => x.classList.remove('selected'));
-            b.classList.add('selected');
+            divOps.querySelectorAll('.opcion-btn').forEach(btn => aplicarEstilo(btn, false));
+            aplicarEstilo(b, true);
             claveDocente[i] = op;
           };
+
           divOps.appendChild(b);
         });
+
         cont.appendChild(row);
       }
     }
