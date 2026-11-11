@@ -242,7 +242,6 @@
   </header>
 
   <div class="container">
-    <!-- Sección 1 -->
     <div class="card">
       <div class="card-title">
         <span class="step-number" style="background: linear-gradient(135deg, #ec4899, #f43f5e);">1</span>
@@ -297,7 +296,6 @@
       <button type="button" class="btn-pdf" onclick="generarPDF()">Descargar Hoja en PDF</button>
     </div>
 
-    <!-- Sección 2 -->
     <div class="card">
       <div class="card-title">
         <span class="step-number" style="background: linear-gradient(135deg, #8b5cf6, #6366f1);">2</span>
@@ -306,7 +304,6 @@
       <div id="contenedorClave"></div>
     </div>
 
-    <!-- Sección 3 -->
     <div class="card">
       <div class="card-title">
         <span class="step-number" style="background: linear-gradient(135deg, #10b981, #059669);">3</span>
@@ -487,40 +484,49 @@
       doc.text("Apellidos y Nombres: ________________________________________________", 30, 40);
       doc.text("DNI / Código: ______________________     Fecha: _____________________", 30, 46);
 
-      // Parámetros dinámicos
+      // PARÁMETROS GEOMÉTRICOS CORREGIDOS (Espacio seguro de esquinas y separación de número)
       const num = parseInt(document.getElementById('numPreguntas').value);
       const ops = document.getElementById('tipoOpciones').value.split('');
 
-      let startX, anchoCol, colW, radioBurbuja, fontSizePreg;
+      let startX, anchoCol, colW, radioBurbuja, fontSizePreg, sepNumero;
 
       if (num <= 25) {
-        startX = 36;
+        // 1 Columna: Se aleja de la izquierda para no invadir el cuadro negro inferior
+        startX = 38.0;
         anchoCol = 0;
-        colW = 10.0;
-        radioBurbuja = 2.8;
-        fontSizePreg = 9;
-      } else if (num <= 50) {
-        startX = 32.5;
-        anchoCol = 80;
-        colW = 8.8;
-        radioBurbuja = 2.6;
+        colW = 9.8;
+        radioBurbuja = 2.7;
         fontSizePreg = 8.5;
+        sepNumero = 7.5;
+      } else if (num <= 50) {
+        // 2 Columnas
+        startX = 36.0;
+        anchoCol = 78.0;
+        colW = 8.5;
+        radioBurbuja = 2.5;
+        fontSizePreg = 8.0;
+        sepNumero = 6.8;
       } else if (num <= 75) {
-        startX = 28.5;
-        anchoCol = 57;
-        colW = 7.1;
-        radioBurbuja = 2.2;
-        fontSizePreg = 7.5;
+        // 3 Columnas
+        startX = 32.0;
+        anchoCol = 56.0;
+        colW = 6.8;
+        radioBurbuja = 2.1;
+        fontSizePreg = 7.0;
+        sepNumero = 5.8;
       } else {
-        startX = 25.0;
-        anchoCol = 43;
-        colW = 5.55;
-        radioBurbuja = 1.9;
-        fontSizePreg = 6.5;
+        // 4 Columnas
+        startX = 30.0;
+        anchoCol = 42.5;
+        colW = 5.4;
+        radioBurbuja = 1.8;
+        fontSizePreg = 6.0;
+        sepNumero = 4.8;
       }
 
-      const startY = 56;
-      const pasoY = 9.0;
+      // Altura inicial y separación vertical para no tocar el cuadro negro inferior (272 mm)
+      const startY = 58.0;
+      const pasoY = 8.2;
 
       for (let i = 1; i <= num; i++) {
         let colIdx = Math.floor((i - 1) / 25);
@@ -529,15 +535,17 @@
         let y = startY + (filaIdx * pasoY);
         let x = startX + (colIdx * anchoCol);
 
+        // Número alineado a la izquierda con separación clara respecto al círculo A
         doc.setFontSize(fontSizePreg);
         doc.setFont("helvetica", "bold");
-        doc.text(`${i < 10 ? '0' + i : i}.`, x - (radioBurbuja + 2), y + 1.2);
+        doc.text(`${i < 10 ? '0' + i : i}.`, x - sepNumero, y + 1.1);
 
+        // Burbujas
         doc.setFont("helvetica", "normal");
         ops.forEach((letra, idx) => {
           let cx = x + (idx * colW);
           doc.circle(cx, y, radioBurbuja, "S");
-          doc.text(letra, cx, y + (radioBurbuja * 0.45), { align: "center" });
+          doc.text(letra, cx, y + (radioBurbuja * 0.42), { align: "center" });
         });
       }
 
@@ -604,7 +612,6 @@
       }
     }
 
-    // Ejecución segura al cargar el DOM
     document.addEventListener("DOMContentLoaded", renderizarClaveDocente);
   </script>
 </body>

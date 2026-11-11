@@ -6,7 +6,7 @@ import numpy as np
 import cv2
 import json
 
-app = FastAPI(title="Motor OMR Multicolumna Universal")
+app = FastAPI(title="Motor OMR Multicolumna Calibrado")
 
 app.add_middleware(
     CORSMiddleware,
@@ -58,6 +58,7 @@ def alinear_hoja(img):
     rect = ordenar_puntos(pts_arr)
 
     ancho_dst, alto_dst = 1000, 1414
+    # Centros teóricos de los marcadores (20mm, 20mm) proyectados a 1000x1414
     dst = np.array([
         [95, 95],
         [905, 95],
@@ -90,35 +91,31 @@ async def calificar(
             cv2.THRESH_BINARY_INV, 31, 10
         )
 
-        # Configuración dinámica según número de preguntas
-        # Hasta 25: 1 col | 26 a 50: 2 cols | 51 a 75: 3 cols | 76 a 100: 4 cols
-        if total_preguntas <= 25:
-            num_cols = 1
-            start_x = 172
-            ancho_columna = 0
-            col_w = 47.6
-            radio = 14
-        elif total_preguntas <= 50:
-            num_cols = 2
-            start_x = 155
-            ancho_columna = 380
-            col_w = 42.0
-            radio = 13
-        elif total_preguntas <= 75:
-            num_cols = 3
-            start_x = 135
-            ancho_columna = 270
-            col_w = 34.0
-            radio = 11
-        else:
-            num_cols = 4
-            start_x = 120
-            ancho_columna = 205
-            col_w = 26.5
-            radio = 9.5
+        # Coordenadas proporcionales calibradas según la hoja generada:
+        # Relación mm a píxeles: factor_x = 1000 / 210 = 4.762 px/mm | factor_y = 1414 / 297 = 4.761 px/mm
+        start_y = int(58.0 * 4.761)  # 276 px
+        row_h = 8.2 * 4.761          # 39.0 px
 
-        start_y = 282
-        row_h = 42.8
+        if total_preguntas <= 25:
+            start_x = int(38.0 * 4.762)     # 181 px
+            ancho_columna = 0
+            col_w = 9.8 * 4.762             # 46.7 px
+            radio = 13.5
+        elif total_preguntas <= 50:
+            start_x = int(36.0 * 4.762)     # 171 px
+            ancho_columna = int(78.0 * 4.762)  # 371 px
+            col_w = 8.5 * 4.762             # 40.5 px
+            radio = 12.5
+        elif total_preguntas <= 75:
+            start_x = int(32.0 * 4.762)     # 152 px
+            ancho_columna = int(56.0 * 4.762)  # 266 px
+            col_w = 6.8 * 4.762             # 32.4 px
+            radio = 10.5
+        else:
+            start_x = int(30.0 * 4.762)     # 143 px
+            ancho_columna = int(42.5 * 4.762)  # 202 px
+            col_w = 5.4 * 4.762             # 25.7 px
+            radio = 9.0
 
         buenas, malas, blancas = 0, 0, 0
         respuestas_detectadas = []
@@ -128,7 +125,7 @@ async def calificar(
             fila_idx = i % 25
 
             y = int(start_y + (fila_idx * row_h))
-            base_x_pregunta = start_x + (col_idx * ancho_columna)
+            base_x_pregunta = int(start_x + (col_idx * ancho_columna))
 
             marcas = []
             for j, opc in enumerate(lista_opciones):
@@ -144,10 +141,9 @@ async def calificar(
             max_pix, seleccion = marcas[0]
             segundo_pix = marcas[1][0] if len(marcas) > 1 else 0
 
-            # Umbrales escalados según el radio de burbuja
-            factor_area = (radio / 14.0) ** 2
-            umbral_blanco = 65 * factor_area
-            umbral_doble = 35 * factor_area
+            factor_area = (radio / 13.5) ** 2
+            umbral_blanco = 60 * factor_area
+            umbral_doble = 32 * factor_area
 
             if max_pix < umbral_blanco:
                 blancas += 1
