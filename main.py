@@ -58,7 +58,6 @@ def alinear_hoja(img):
     rect = ordenar_puntos(pts_arr)
 
     ancho_dst, alto_dst = 1000, 1414
-    # Centros teóricos de los marcadores (20mm, 20mm) proyectados a 1000x1414
     dst = np.array([
         [95, 95],
         [905, 95],
@@ -91,8 +90,7 @@ async def calificar(
             cv2.THRESH_BINARY_INV, 31, 10
         )
 
-        # Coordenadas proporcionales calibradas según la hoja generada:
-        # Relación mm a píxeles: factor_x = 1000 / 210 = 4.762 px/mm | factor_y = 1414 / 297 = 4.761 px/mm
+        # Conversión mm a píxeles: factor_x = 4.762 | factor_y = 4.761
         start_y = int(58.0 * 4.761)  # 276 px
         row_h = 8.2 * 4.761          # 39.0 px
 
@@ -112,10 +110,11 @@ async def calificar(
             col_w = 6.8 * 4.762             # 32.4 px
             radio = 10.5
         else:
-            start_x = int(30.0 * 4.762)     # 143 px
-            ancho_columna = int(42.5 * 4.762)  # 202 px
-            col_w = 5.4 * 4.762             # 25.7 px
-            radio = 9.0
+            # 4 Columnas (hasta 100 preguntas) calibradas con la nueva holgura
+            start_x = int(27.0 * 4.762)        # 129 px
+            ancho_columna = int(43.5 * 4.762)  # 207 px
+            col_w = 6.4 * 4.762                # 30.5 px
+            radio = 10.0
 
         buenas, malas, blancas = 0, 0, 0
         respuestas_detectadas = []
@@ -142,8 +141,8 @@ async def calificar(
             segundo_pix = marcas[1][0] if len(marcas) > 1 else 0
 
             factor_area = (radio / 13.5) ** 2
-            umbral_blanco = 60 * factor_area
-            umbral_doble = 32 * factor_area
+            umbral_blanco = 58 * factor_area
+            umbral_doble = 30 * factor_area
 
             if max_pix < umbral_blanco:
                 blancas += 1

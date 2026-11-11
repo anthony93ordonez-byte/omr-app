@@ -484,14 +484,13 @@
       doc.text("Apellidos y Nombres: ________________________________________________", 30, 40);
       doc.text("DNI / Código: ______________________     Fecha: _____________________", 30, 46);
 
-      // PARÁMETROS GEOMÉTRICOS CORREGIDOS (Espacio seguro de esquinas y separación de número)
+      // PARÁMETROS GEOMÉTRICOS CON HOLGURA DE 2 A 3 MM EXTRA
       const num = parseInt(document.getElementById('numPreguntas').value);
       const ops = document.getElementById('tipoOpciones').value.split('');
 
       let startX, anchoCol, colW, radioBurbuja, fontSizePreg, sepNumero;
 
       if (num <= 25) {
-        // 1 Columna: Se aleja de la izquierda para no invadir el cuadro negro inferior
         startX = 38.0;
         anchoCol = 0;
         colW = 9.8;
@@ -499,7 +498,6 @@
         fontSizePreg = 8.5;
         sepNumero = 7.5;
       } else if (num <= 50) {
-        // 2 Columnas
         startX = 36.0;
         anchoCol = 78.0;
         colW = 8.5;
@@ -507,7 +505,6 @@
         fontSizePreg = 8.0;
         sepNumero = 6.8;
       } else if (num <= 75) {
-        // 3 Columnas
         startX = 32.0;
         anchoCol = 56.0;
         colW = 6.8;
@@ -515,16 +512,15 @@
         fontSizePreg = 7.0;
         sepNumero = 5.8;
       } else {
-        // 4 Columnas
-        startX = 30.0;
-        anchoCol = 42.5;
-        colW = 5.4;
-        radioBurbuja = 1.8;
-        fontSizePreg = 6.0;
-        sepNumero = 4.8;
+        // 4 Columnas (Hasta 100 preguntas): +2.5 mm entre número y letra A, y más espacio entre círculos
+        startX = 27.0;
+        anchoCol = 43.5;
+        colW = 6.4;
+        radioBurbuja = 2.0;
+        fontSizePreg = 6.5;
+        sepNumero = 7.0; // Espacio amplio para que no se apegue el número
       }
 
-      // Altura inicial y separación vertical para no tocar el cuadro negro inferior (272 mm)
       const startY = 58.0;
       const pasoY = 8.2;
 
@@ -535,12 +531,12 @@
         let y = startY + (filaIdx * pasoY);
         let x = startX + (colIdx * anchoCol);
 
-        // Número alineado a la izquierda con separación clara respecto al círculo A
+        // Número con separación amplia
         doc.setFontSize(fontSizePreg);
         doc.setFont("helvetica", "bold");
         doc.text(`${i < 10 ? '0' + i : i}.`, x - sepNumero, y + 1.1);
 
-        // Burbujas
+        // Círculos de alternativas
         doc.setFont("helvetica", "normal");
         ops.forEach((letra, idx) => {
           let cx = x + (idx * colW);
