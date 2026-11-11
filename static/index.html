@@ -9,8 +9,9 @@
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 16px; background: #f8fafc; color: #1e293b; }
     .card { background: white; border-radius: 12px; padding: 18px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
     h2, h3 { margin-top: 0; color: #0f172a; }
-    label { display: block; margin: 12px 0 4px; font-weight: 600; font-size: 0.85em; color: #475569; }
-    input, select, button { width: 100%; box-sizing: border-box; padding: 11px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 0.95em; }
+    label { display: block; margin: 10px 0 4px; font-weight: 600; font-size: 0.85em; color: #475569; }
+    input, select, button { width: 100%; box-sizing: border-box; padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 0.95em; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     button { background: #2563eb; color: white; border: none; font-weight: 600; cursor: pointer; margin-top: 14px; }
     button:active { background: #1d4ed8; }
     .btn-camara { background: #16a34a; font-size: 1.05em; padding: 14px; }
@@ -23,30 +24,64 @@
 </head>
 <body>
 
+  <!-- Sección 1: Generador de Hoja con Encabezado Completo -->
   <div class="card">
-    <h3>1. Configurar y Descargar Hoja</h3>
-    <label>Título / Institución Educativa:</label>
-    <input type="text" id="tituloDoc" value="Evaluación de Aprendizajes">
+    <h3>1. Configurar Hoja de Respuestas</h3>
+    
+    <label>Insignia / Logo (Opcional - JPG o PNG):</label>
+    <input type="file" id="logoColegio" accept="image/png, image/jpeg">
 
-    <label>Número de Preguntas:</label>
-    <input type="number" id="numPreguntas" value="20" min="1" max="50" onchange="renderizarClaveDocente()">
+    <label>Nombre de la Institución Educativa:</label>
+    <input type="text" id="nombreIE" value="I.E. N° 2026">
 
-    <label>Alternativas por Pregunta:</label>
-    <select id="tipoOpciones" onchange="renderizarClaveDocente()">
-      <option value="ABC">A, B, C (3 alternativas)</option>
-      <option value="ABCD" selected>A, B, C, D (4 alternativas)</option>
-      <option value="ABCDE">A, B, C, D, E (5 alternativas)</option>
-      <option value="VF">V, F (Verdadero / Falso)</option>
-    </select>
+    <div class="grid-2">
+      <div>
+        <label>Tema / Evento / Concurso:</label>
+        <input type="text" id="temaEvaluacion" value="Evaluación Diagnóstica">
+      </div>
+      <div>
+        <label>Área / Curso:</label>
+        <input type="text" id="areaCurso" value="Matemática">
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <label>Grado y Sección:</label>
+        <input type="text" id="gradoSeccion" value="4to Secundaria - A">
+      </div>
+      <div>
+        <label>Docente / Responsable:</label>
+        <input type="text" id="docenteResp" value="Prof. Responsable">
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <label>Número de Preguntas:</label>
+        <input type="number" id="numPreguntas" value="20" min="1" max="50" onchange="renderizarClaveDocente()">
+      </div>
+      <div>
+        <label>Alternativas por Pregunta:</label>
+        <select id="tipoOpciones" onchange="renderizarClaveDocente()">
+          <option value="ABC">A, B, C (3 alternativas)</option>
+          <option value="ABCD" selected>A, B, C, D (4 alternativas)</option>
+          <option value="ABCDE">A, B, C, D, E (5 alternativas)</option>
+          <option value="VF">V, F (Verdadero / Falso)</option>
+        </select>
+      </div>
+    </div>
 
     <button type="button" onclick="generarPDF()">Descargar Hoja en PDF</button>
   </div>
 
+  <!-- Sección 2: Clave Docente -->
   <div class="card">
     <h3>2. Clave del Docente</h3>
     <div id="contenedorClave"></div>
   </div>
 
+  <!-- Sección 3: Escaneo y Envío a Sheets -->
   <div class="card">
     <h3>3. Calificar Examen</h3>
     <label>Nombre o Código del Estudiante:</label>
@@ -100,34 +135,80 @@
       }
     }
 
-    function generarPDF() {
+    function leerImagen(file) {
+      return new Promise((resolve) => {
+        if (!file) return resolve(null);
+        const reader = new FileReader();
+        reader.onload = (e) => resolve(e.target.result);
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function generarPDF() {
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF({ unit: "mm", format: "a4" });
       const margen = 15;
       const tamCuadro = 10;
 
+      // 1. Cuatro marcas de calibración en las esquinas
       doc.setFillColor(0, 0, 0);
       doc.rect(margen, margen, tamCuadro, tamCuadro, "F");
       doc.rect(210 - margen - tamCuadro, margen, tamCuadro, tamCuadro, "F");
       doc.rect(margen, 297 - margen - tamCuadro, tamCuadro, tamCuadro, "F");
       doc.rect(210 - margen - tamCuadro, 297 - margen - tamCuadro, tamCuadro, tamCuadro, "F");
 
-      doc.setFontSize(14);
-      doc.text(document.getElementById("tituloDoc").value, 105, 23, { align: "center" });
-      doc.setFontSize(9);
-      doc.text("Estudiante: _____________________________________   Fecha: ___________", 35, 33);
+      // 2. Insignia / Logo (si se subió archivo)
+      const logoInput = document.getElementById('logoColegio');
+      if (logoInput.files && logoInput.files[0]) {
+        try {
+          const imgData = await leerImagen(logoInput.files[0]);
+          doc.addImage(imgData, "PNG", 30, 16, 18, 18);
+        } catch (e) {
+          console.warn("No se pudo cargar la imagen del logo", e);
+        }
+      }
 
+      // 3. Encabezado institucional
+      const ie = document.getElementById("nombreIE").value;
+      const tema = document.getElementById("temaEvaluacion").value;
+      const area = document.getElementById("areaCurso").value;
+      const grado = document.getElementById("gradoSeccion").value;
+      const docente = document.getElementById("docenteResp").value;
+
+      doc.setFontSize(13);
+      doc.setFont("helvetica", "bold");
+      doc.text(ie.toUpperCase(), 115, 20, { align: "center" });
+
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "normal");
+      doc.text(`${tema} — Área: ${area}`, 115, 26, { align: "center" });
+      doc.text(`Grado/Sección: ${grado} | Docente: ${docente}`, 115, 31, { align: "center" });
+
+      // Línea divisoria
+      doc.setDrawColor(180, 180, 180);
+      doc.line(30, 34, 180, 34);
+
+      // 4. Datos del Estudiante
+      doc.setFontSize(9);
+      doc.text("Apellidos y Nombres: ________________________________________________", 30, 40);
+      doc.text("DNI / Código: ______________________     Fecha: _____________________", 30, 46);
+
+      // 5. Grilla de Burbujas
       const num = parseInt(document.getElementById('numPreguntas').value);
       const ops = document.getElementById('tipoOpciones').value.split('');
-      let startX = 35, startY = 45;
+      let startX = 35;
+      let startY = 56;
 
       for (let i = 1; i <= num; i++) {
         let fila = (i <= 25) ? i - 1 : i - 26;
         let y = startY + (fila * 9);
         let x = (i > 25) ? startX + 75 : startX;
 
+        doc.setFontSize(9);
+        doc.setFont("helvetica", "bold");
         doc.text(`${i < 10 ? '0'+i : i}.`, x - 7, y + 3);
 
+        doc.setFont("helvetica", "normal");
         ops.forEach((letra, idx) => {
           let cx = x + (idx * 10);
           doc.circle(cx, y + 2, 2.8, "S");
@@ -135,7 +216,7 @@
         });
       }
 
-      doc.save("hoja_respuestas.pdf");
+      doc.save(`Hoja_Respuestas_${area}.pdf`);
     }
 
     function iniciarCaptura() {
