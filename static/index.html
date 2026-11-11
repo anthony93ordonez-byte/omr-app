@@ -21,7 +21,6 @@
       min-height: 100vh;
     }
     
-    /* Encabezado ultra colorido con degradado moderno */
     .top-header {
       background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 40%, #3b82f6 75%, #06b6d4 100%);
       color: white;
@@ -59,7 +58,6 @@
       margin-bottom: 10px;
       border: 1px solid rgba(255, 255, 255, 0.4);
       font-weight: 700;
-      text-shadow: none;
     }
 
     .container {
@@ -144,7 +142,7 @@
       font-size: 1em;
       cursor: pointer;
       margin-top: 18px;
-      transition: transform 0.1s ease, filter 0.2s, box-shadow 0.2s;
+      transition: transform 0.1s ease, filter 0.2s;
     }
 
     button:active {
@@ -165,7 +163,6 @@
       box-shadow: 0 6px 18px rgba(16, 185, 129, 0.35);
     }
 
-    /* FILA MULTICOLOR PARA CADA PREGUNTA */
     .clave-row {
       display: flex;
       align-items: center;
@@ -176,12 +173,8 @@
       transition: transform 0.15s ease;
     }
 
-    .clave-row:hover {
-      transform: translateX(2px);
-    }
-
     .clave-label {
-      font-size: 0.95em;
+      font-size: 0.92em;
       font-weight: 800;
       letter-spacing: -0.2px;
     }
@@ -191,22 +184,21 @@
       gap: 6px;
     }
 
-    /* BOTONES DE ALTERNATIVAS COLOREADOS */
     .opcion-btn {
-      width: 38px;
-      height: 38px;
+      width: 36px;
+      height: 36px;
       padding: 0;
       margin: 0;
-      border-radius: 10px;
+      border-radius: 9px;
       border: 2px solid transparent;
       background: white;
       font-weight: 800;
-      font-size: 0.95em;
+      font-size: 0.9em;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: all 0.15s ease;
     }
 
     .res-grid {
@@ -238,7 +230,6 @@
 </head>
 <body>
 
-  <!-- ENCABEZADO VIBRANTE -->
   <header class="top-header">
     <div class="badge-live">Plataforma Activa</div>
     <h1>Sistema de Calificación OMR</h1>
@@ -246,7 +237,6 @@
   </header>
 
   <div class="container">
-    <!-- Paso 1: Configuración de Hoja -->
     <div class="card">
       <div class="card-title">
         <span class="step-number" style="background: linear-gradient(135deg, #ec4899, #f43f5e);">1</span>
@@ -283,8 +273,8 @@
 
       <div class="grid-2">
         <div>
-          <label>Número de Preguntas:</label>
-          <input type="number" id="numPreguntas" value="20" min="1" max="25" onchange="renderizarClaveDocente()">
+          <label>Número de Preguntas (Máx. 100):</label>
+          <input type="number" id="numPreguntas" value="20" min="1" max="100" onchange="renderizarClaveDocente()">
         </div>
         <div>
           <label>Alternativas:</label>
@@ -300,7 +290,6 @@
       <button type="button" class="btn-pdf" onclick="generarPDF()">Descargar Hoja en PDF</button>
     </div>
 
-    <!-- Paso 2: Clave Docente Multicolor -->
     <div class="card">
       <div class="card-title">
         <span class="step-number" style="background: linear-gradient(135deg, #8b5cf6, #6366f1);">2</span>
@@ -309,7 +298,6 @@
       <div id="contenedorClave"></div>
     </div>
 
-    <!-- Paso 3: Escaneo y Envío a Sheets -->
     <div class="card">
       <div class="card-title">
         <span class="step-number" style="background: linear-gradient(135deg, #10b981, #059669);">3</span>
@@ -349,18 +337,17 @@
     const URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbzjyB6qhdCZGSSdc1l--b7JDckZ7rq8rWCLHe09RaYS0U7ltSQaB-5t2s_UY9Jdwizx/exec";
     let claveDocente = {};
 
-    // Paleta de 10 colores dinámicos para las filas y alternativas
     const PALETA_COLORES = [
-      { fondo: "#ede9fe", texto: "#6d28d9", activo: "#7c3aed", borde: "#c4b5fd" }, // Morado
-      { fondo: "#e0f2fe", texto: "#0369a1", activo: "#0284c7", borde: "#7dd3fc" }, // Azul cielo
-      { fondo: "#ecfdf5", texto: "#047857", activo: "#059669", borde: "#6ee7b7" }, // Esmeralda
-      { fondo: "#ffedd5", texto: "#c2410c", activo: "#ea580c", borde: "#fdba74" }, // Naranja
-      { fondo: "#fce7f3", texto: "#be185d", activo: "#db2777", borde: "#f9a8d4" }, // Rosa
-      { fondo: "#fef3c7", texto: "#b45309", activo: "#d97706", borde: "#fcd34d" }, // Ámbar
-      { fondo: "#e0e7ff", texto: "#4338ca", activo: "#4f46e5", borde: "#a5b4fc" }, // Índigo
-      { fondo: "#cffafe", texto: "#0e7490", activo: "#0891b2", borde: "#67e8f9" }, // Cian
-      { fondo: "#f3e8ff", texto: "#7e22ce", activo: "#9333ea", borde: "#d8b4fe" }, // Púrpura
-      { fondo: "#ecfccb", texto: "#4d7c0f", activo: "#65a30d", borde: "#bef264" }  // Lima
+      { fondo: "#ede9fe", texto: "#6d28d9", activo: "#7c3aed", borde: "#c4b5fd" },
+      { fondo: "#e0f2fe", texto: "#0369a1", activo: "#0284c7", borde: "#7dd3fc" },
+      { fondo: "#ecfdf5", texto: "#047857", activo: "#059669", borde: "#6ee7b7" },
+      { fondo: "#ffedd5", texto: "#c2410c", activo: "#ea580c", borde: "#fdba74" },
+      { fondo: "#fce7f3", texto: "#be185d", activo: "#db2777", borde: "#f9a8d4" },
+      { fondo: "#fef3c7", texto: "#b45309", activo: "#d97706", borde: "#fcd34d" },
+      { fondo: "#e0e7ff", texto: "#4338ca", activo: "#4f46e5", borde: "#a5b4fc" },
+      { fondo: "#cffafe", texto: "#0e7490", activo: "#0891b2", borde: "#67e8f9" },
+      { fondo: "#f3e8ff", texto: "#7e22ce", activo: "#9333ea", borde: "#d8b4fe" },
+      { fondo: "#ecfccb", texto: "#4d7c0f", activo: "#65a30d", borde: "#bef264" }
     ];
 
     function renderizarClaveDocente() {
@@ -381,7 +368,7 @@
 
         row.innerHTML = `
           <span class="clave-label" style="color: ${temaColor.texto};">
-            PREGUNTA ${i < 10 ? '0' + i : i}
+            PREG. ${i < 10 ? '0' + i : i}
           </span>
           <div class="opciones-group"></div>
         `;
@@ -408,7 +395,6 @@
             }
           }
 
-          // Inicializar selección (la primera alternativa por defecto)
           aplicarEstilo(b, op === ops[0]);
 
           b.onclick = () => {
@@ -439,7 +425,7 @@
       const margen = 15;
       const tamCuadro = 10;
 
-      // 4 marcas en las esquinas
+      // 4 marcas en esquinas
       doc.setFillColor(0, 0, 0);
       doc.rect(margen, margen, tamCuadro, tamCuadro, "F");
       doc.rect(210 - margen - tamCuadro, margen, tamCuadro, tamCuadro, "F");
@@ -453,7 +439,7 @@
           const imgData = await leerImagen(logoInput.files[0]);
           doc.addImage(imgData, "PNG", 30, 16, 18, 18);
         } catch (e) {
-          console.warn("Logo no disponible", e);
+          console.warn("Logo no cargado", e);
         }
       }
 
@@ -480,30 +466,61 @@
       doc.text("Apellidos y Nombres: ________________________________________________", 30, 40);
       doc.text("DNI / Código: ______________________     Fecha: _____________________", 30, 46);
 
-      // Burbujas
+      // Parámetros dinámicos según cantidad de preguntas
       const num = parseInt(document.getElementById('numPreguntas').value);
       const ops = document.getElementById('tipoOpciones').value.split('');
-      let startX = 35;
-      let startY = 56;
+
+      let startX, anchoCol, colW, radioBurbuja, fontSizePreg;
+
+      if (num <= 25) {
+        startX = 36;
+        anchoCol = 0;
+        colW = 10.0;
+        radioBurbuja = 2.8;
+        fontSizePreg = 9;
+      } else if (num <= 50) {
+        startX = 32.5;
+        anchoCol = 80;
+        colW = 8.8;
+        radioBurbuja = 2.6;
+        fontSizePreg = 8.5;
+      } else if (num <= 75) {
+        startX = 28.5;
+        anchoCol = 57;
+        colW = 7.1;
+        radioBurbuja = 2.2;
+        fontSizePreg = 7.5;
+      } else {
+        startX = 25.0;
+        anchoCol = 43;
+        colW = 5.55;
+        radioBurbuja = 1.9;
+        fontSizePreg = 6.5;
+      }
+
+      const startY = 56;
+      const pasoY = 9.0;
 
       for (let i = 1; i <= num; i++) {
-        let fila = i - 1;
-        let y = startY + (fila * 9);
-        let x = startX;
+        let colIdx = Math.floor((i - 1) / 25);
+        let filaIdx = (i - 1) % 25;
 
-        doc.setFontSize(9);
+        let y = startY + (filaIdx * pasoY);
+        let x = startX + (colIdx * anchoCol);
+
+        doc.setFontSize(fontSizePreg);
         doc.setFont("helvetica", "bold");
-        doc.text(`${i < 10 ? '0'+i : i}.`, x - 7, y + 3);
+        doc.text(`${i < 10 ? '0' + i : i}.`, x - (radioBurbuja + 2), y + 1.2);
 
         doc.setFont("helvetica", "normal");
         ops.forEach((letra, idx) => {
-          let cx = x + (idx * 10);
-          doc.circle(cx, y + 2, 2.8, "S");
-          doc.text(letra, cx, y + 3.2, { align: "center" });
+          let cx = x + (idx * colW);
+          doc.circle(cx, y, radioBurbuja, "S");
+          doc.text(letra, cx, y + (radioBurbuja * 0.45), { align: "center" });
         });
       }
 
-      doc.save(`Hoja_Respuestas_${area}.pdf`);
+      doc.save(`Hoja_Respuestas_${num}P_${area}.pdf`);
     }
 
     function iniciarCaptura() {
