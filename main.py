@@ -11,6 +11,7 @@ app = FastAPI(title="Motor OMR Calibrado")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -39,8 +40,7 @@ def alinear_hoja(img):
     for c in cnts:
         peri = cv2.arcLength(c, True)
         approx = cv2.approxPolyDP(c, 0.04 * peri, True)
-        # Filtra cuadriláteros con área de marcador de esquina
-        if len(approx) == 4 and cv2.contourArea(c) > 300:
+        if len(approx) == 4 and cv2.contourArea(c) > 250:
             M = cv2.moments(c)
             if M["m00"] != 0:
                 cX = int(M["m10"] / M["m00"])
@@ -48,9 +48,8 @@ def alinear_hoja(img):
                 centros.append([cX, cY])
 
     if len(centros) < 4:
-        raise ValueError("No se detectaron los 4 marcadores de las esquinas. Encuadra la hoja completa con buena luz.")
+        raise ValueError("No se detectaron los 4 marcadores negros de las esquinas. Encuadra la hoja completa.")
 
-    # Tomar los 4 puntos más exteriores
     centros = sorted(centros, key=lambda p: (p[0]**2 + p[1]**2))
     pts = ordenar_puntos(np.array(centros[:4], dtype="float32"))
 
@@ -79,21 +78,21 @@ async def calificar(
         nparr = np.frombuffer(contents, np.uint8)
         img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
 
-        # 1. Transformación de perspectiva
+        # 1. Enderezar la hoja
         enderezada = alinear_hoja(img)
         
-        # 2. Umbralización adaptativa para compensar sombras del celular
+        # 2. Umbralización adaptativa sensible para lápiz y lapicero
         thresh = cv2.adaptiveThreshold(
             enderezada, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, 
-            cv2.THRESH_BINARY_INV, 31, 7
+            cv2.THRESH_BINARY_INV, 25, 9
         )
 
-        # Coordenadas exactas sincronizadas con startY = 56 mm del PDF
+        # Coordenadas calibradas para la hoja de respuestas
         start_x = 166
         start_y = 264
         row_h = 42.5
         col_w = 47.2
-        radio = 13
+        radio = 12
 
         buenas, malas, blancas = 0, 0, 0
         respuestas_detectadas = []
@@ -109,11 +108,9 @@ async def calificar(
             for j, opc in enumerate(lista_opciones):
                 x = int(x_base + (j * col_w))
                 
-                # Crear máscara circular de evaluación
                 mascara = np.zeros(thresh.shape, dtype="uint8")
                 cv2.circle(mascara, (x, y), radio, 255, -1)
                 
-                # Densidad de píxeles oscuros
                 total_pixeles = cv2.countNonZero(cv2.bitwise_and(thresh, thresh, mask=mascara))
                 marcas.append((total_pixeles, opc))
 
@@ -121,20 +118,19 @@ async def calificar(
             max_pix, seleccion = marcas[0]
             segundo_pix = marcas[1][0] if len(marcas) > 1 else 0
 
-            # Umbrales calibrados
-            num_pregunta = f"P{i+1:02d}"
-            if max_pix < 140:
+            # Umbral de detección: si tiene más de 55 píxeles oscuros, hay marca
+            if max_pix < 55:
                 blancas += 1
-                respuestas_detectadas.append(f"{num_pregunta}: [BLANCO]")
-            elif (max_pix - segundo_pix) < 70:
+                respuestas_detectadas.append("BLANCO")
+            elif (max_pix - segundo_pix) < 30:
                 malas += 1
-                respuestas_detectadas.append(f"{num_pregunta}: [DOBLE MARCA]")
+                respuestas_detectadas.append("DOBLE")
             elif seleccion == resp_correcta:
                 buenas += 1
-                respuestas_detectadas.append(f"{num_pregunta}: {seleccion} (OK)")
+                respuestas_detectadas.append(seleccion)
             else:
                 malas += 1
-                respuestas_detectadas.append(f"{num_pregunta}: {seleccion} (ERR, era {resp_correcta})")
+                respuestas_detectadas.append(seleccion)
 
         total = len(lista_clave)
         nota = round((buenas / total) * 20, 2)
@@ -145,7 +141,7 @@ async def calificar(
             "malas": malas,
             "blancas": blancas,
             "puntaje": nota,
-            "detalle": respuestas_detectadas
+            "respuestas": respuestas_detectadas
         }
 
     except Exception as e:
